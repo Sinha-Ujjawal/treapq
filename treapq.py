@@ -103,6 +103,8 @@ class Treapq:
 			self._min = p.next
 			if self._min:
 				self._min.prev = None
+			else:
+				self._max = None
 			self._map.pop(p.object.k)
 			return p.object
 
@@ -113,6 +115,8 @@ class Treapq:
 			self._max = p.prev
 			if self._max:
 				self._max.next = None
+			else:
+				self._min = None
 			self._map.pop(p.object.k)
 			return p.object
 
@@ -170,37 +174,38 @@ class Treapq:
 			else:
 				return
 		except:
-			p = self._root
-			a = b = q = None
-			while p != None:
-				q = p
-				if prior < p.object.prior:
-					a = p
-					p = p.left
-				else:
-					b = p
-					p = p.right
-			node = self.__Node(k, prior)
-			self._map[k] = node
-			node.next = a
-			node.prev = b
-			if a:
-				a.prev = node
-			if b:
-				b.next = node
-			if self._min == None or prior < self._min.object.prior:
-				self._min = node
-			if self._max == None or prior >= self._max.object.prior:
-				self._max = node
-			node.p = q
-			if q:
-				if prior < q.object.prior:
-					q.left = node
-				else:
-					q.right = node
-				self.__maintainMinHeapProperty(self, node)
+			pass
+		p = self._root
+		a = b = q = None
+		while p != None:
+			q = p
+			if prior < p.object.prior:
+				a = p
+				p = p.left
 			else:
-				self._root = node
+				b = p
+				p = p.right
+		node = self.__Node(k, prior)
+		self._map[k] = node
+		node.next = a
+		node.prev = b
+		if a:
+			a.prev = node
+		if b:
+			b.next = node
+		if self._min == None or prior < self._min.object.prior:
+			self._min = node
+		if self._max == None or prior >= self._max.object.prior:
+			self._max = node
+		node.p = q
+		if q:
+			if prior < q.object.prior:
+				q.left = node
+			else:
+				q.right = node
+			self.__maintainMinHeapProperty(self, node)
+		else:
+			self._root = node
 
 	def get(self, k):
 		return self._map[k].object
@@ -209,15 +214,12 @@ class Treapq:
 		return k in self._map
 
 	def pop(self, k):
-		p = self._map.pop(k)
+		p = self._map[k]
 		if p == self._min:
-			self._min = p.next
-		if self._min:
-			self._min.prev = None
+			return self.extractMin()
 		if p == self._max:
-			self._max = p.prev
-		if self._max:
-			self._max.next = None
+			return self.extractMax()
+		self._map.pop(k)
 		a = p.next
 		b = p.prev
 		if a:
